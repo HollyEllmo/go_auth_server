@@ -5,6 +5,7 @@
 ## Описание
 
 Это проект сервера аутентификации, который предоставляет следующие возможности:
+
 - Регистрация пользователей
 - Аутентификация с использованием JWT токенов
 - Проверка прав администратора
@@ -36,22 +37,26 @@
 ## Установка и запуск
 
 1. Клонируйте репозиторий:
+
 ```bash
 git clone https://github.com/HollyEllmo/go_auth_server.git
 cd go_auth_server
 ```
 
 2. Установите зависимости:
+
 ```bash
 go mod download
 ```
 
 3. Запустите миграции:
+
 ```bash
 go run cmd/migrator/main.go --storage-path=./storage/sso.db --migrations-path=./cmd/migrations
 ```
 
 4. Запустите сервер:
+
 ```bash
 go run cmd/sso/main.go --config=./config/local.yaml
 ```
@@ -59,6 +64,7 @@ go run cmd/sso/main.go --config=./config/local.yaml
 ## Использование
 
 Сервер предоставляет gRPC API для:
+
 - Регистрации пользователей
 - Входа в систему (получение JWT токена)
 - Проверки прав администратора
