@@ -126,16 +126,16 @@ func (a *Auth) RegisterNewUser(
 
 	passHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		if errors.Is(err, storage.ErrUserExist) {
-			log.Warn("user already exists", slog.String("email", email))
-			return 0, fmt.Errorf("%s: user already exists: %w", op, ErrUserExists)
-		}
 		log.Error("failed to generate password hash", slog.String("error", err.Error()))
 		return 0, fmt.Errorf("%s: failed to generate password hash: %w", op, err)
 	}
 
 	id, err := a.userSaver.SaveUser(ctx, email, passHash)
 	if err != nil {
+		if errors.Is(err, storage.ErrUserExists) {
+			log.Warn("user already exists", slog.String("email", email))
+			return 0, fmt.Errorf("%s: user already exists: %w", op, ErrUserExists)
+		}
 		log.Error("failed to save user", slog.String("error", err.Error()))
 		return 0, fmt.Errorf("%s: failed to save user: %w", op, err)
 	}

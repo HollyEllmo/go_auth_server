@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/HollyEllmo/go_auth_server/internal/domain/models"
 	"github.com/HollyEllmo/go_auth_server/internal/storage"
@@ -41,12 +42,17 @@ func (s *Storage) SaveUser(ctx context.Context, email string, passHash []byte) (
 	if err != nil {
 		var sqliteErr *sqlite3.Error
 
-		if errors.As(err, &sqliteErr) && sqlite3.ErrNo(sqliteErr.ExtendedCode) == sqlite3.ErrNo(sqlite3.ErrConstraintUnique) {
-			return  0, fmt.Errorf("%s: %w", op, storage.ErrUserExist)
-	}
+		if errors.As(err, &sqliteErr) && sqliteErr.ExtendedCode == sqlite3.ErrConstraintUnique {
+			return 0, fmt.Errorf("%s: %w", op, storage.ErrUserExists)
+		}
 
-	return 0, fmt.Errorf("%s: %w", op, err)
-}
+		// Проверка по сообщению ошибки для случаев, когда errors.As не срабатывает
+		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
+			return  0, fmt.Errorf("%s: %w", op, storage.ErrUserExists)
+		}
+
+		return 0, fmt.Errorf("%s: %w", op, err)
+	}
 
 	id, err := res.LastInsertId()
 	if err != nil {

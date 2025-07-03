@@ -5,7 +5,6 @@ import (
 	"errors"
 
 	"github.com/HollyEllmo/go_auth_server/internal/services/auth"
-	"github.com/HollyEllmo/go_auth_server/internal/storage"
 	ssov1 "github.com/HollyEllmo/my_proto_repo/gen/go/auth/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -85,7 +84,7 @@ func (s *serverAPI) Register(ctx context.Context, req *ssov1.RegisterRequest) (*
 
 	userID, err := s.auth.RegisterNewUser(ctx, req.GetEmail(), req.GetPassword())
 	if err != nil {
-		if errors.Is(err, storage.ErrUserExist) {
+		if errors.Is(err, auth.ErrUserExists) {
 			return nil, status.Error(codes.AlreadyExists, "user already exists")
 		}
 		return nil, status.Error(codes.Internal, "failed to register")
@@ -103,7 +102,7 @@ func (s *serverAPI) IsAdmin(ctx context.Context, req *ssov1.IsAdminRequest) (*ss
 
 	isAdmin, err := s.auth.IsAdmin(ctx, req.GetUserId())
 	if err != nil {
-		if errors.Is(err, storage.ErrAppNotFound) {
+		if errors.Is(err, auth.ErrInvalidAppID) {
 			return nil, status.Error(codes.NotFound, "app not found")
 		}
 		return nil, status.Error(codes.Internal, "failed to check admin status")
